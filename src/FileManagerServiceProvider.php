@@ -53,7 +53,7 @@ class FileManagerServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasViews()
             ->hasMigrations([
-                'create_file_system_items_table',
+                // 'create_file_system_items_table',
                 'add_unique_constraint_to_file_system_items_table',
             ])
             ->runsMigrations()
