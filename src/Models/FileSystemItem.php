@@ -234,7 +234,7 @@ class FileSystemItem extends Model implements FileSystemItemInterface
         if ($this->isFolder() && $newParent) {
             $parentIds = collect($newParent->ancestors())->pluck('id')->push($newParent->id);
             if ($parentIds->contains($this->id)) {
-                return 'Cannot move a folder into itself or its descendants';
+                return 'Não é possível mover uma pasta para dentro dela mesma ou para dentro de suas pastas descendentes';
             }
         }
 
@@ -246,7 +246,7 @@ class FileSystemItem extends Model implements FileSystemItemInterface
             ->first();
 
         if ($existingItem) {
-            return 'An item with this name already exists in the destination folder';
+            return 'Já existe um item com esse nome na pasta de destino';
         }
 
         // Simply update the parent_id - no path column to update!

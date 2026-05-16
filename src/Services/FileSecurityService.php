@@ -34,7 +34,7 @@ class FileSecurityService
             ]);
             return [
                 'valid' => false,
-                'error' => "File type '.{$extension}' is not allowed for security reasons.",
+                'error' => "Tipo de arquivo '.{$extension}' Não é permitido por motivos de segurança.",
                 'sanitized_name' => null,
             ];
         }
@@ -48,7 +48,7 @@ class FileSecurityService
             ]);
             return [
                 'valid' => false,
-                'error' => 'Files with multiple extensions are not allowed.',
+                'error' => 'Arquivos com múltiplas extensões não são permitidos.',
                 'sanitized_name' => null,
             ];
         }
@@ -67,7 +67,7 @@ class FileSecurityService
                 ]);
                 return [
                     'valid' => false,
-                    'error' => 'File content does not match its extension.',
+                    'error' => 'O conteúdo do arquivo não corresponde à sua extensão.',
                     'sanitized_name' => null,
                 ];
             }
@@ -83,7 +83,7 @@ class FileSecurityService
                 ]);
                 return [
                     'valid' => false,
-                    'error' => 'File type is not allowed.',
+                    'error' => 'Tipo de arquivo não permitido.',
                     'sanitized_name' => null,
                 ];
             }
@@ -100,7 +100,7 @@ class FileSecurityService
                 ]);
                 return [
                     'valid' => false,
-                    'error' => 'Filename contains invalid characters or patterns.',
+                    'error' => 'O nome do arquivo contém caracteres ou padrões inválidos.',
                     'sanitized_name' => null,
                 ];
             }

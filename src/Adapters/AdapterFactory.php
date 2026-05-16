@@ -22,7 +22,7 @@ class AdapterFactory
         return match ($mode) {
             'database' => static::makeDatabase(),
             'storage' => static::makeStorage(),
-            default => throw new InvalidArgumentException("Unknown file manager mode: {$mode}"),
+            default => throw new InvalidArgumentException("Modo de gerenciador de arquivos desconhecido: {$mode}"),
         };
     }
 

@@ -245,7 +245,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
             ->exists();
 
         if ($exists) {
-            return 'A folder with this name already exists';
+            return 'Já existe uma pasta com este nome';
         }
 
         try {
@@ -257,7 +257,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
 
             return $this->wrap($folder);
         } catch (\Exception $e) {
-            return 'Failed to create folder: ' . $e->getMessage();
+            return 'Falha ao criar a pasta: ' . $e->getMessage();
         }
     }
 
@@ -306,7 +306,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                     try {
                         Storage::disk($this->disk)->delete($storedPath);
                     } catch (\Exception $cleanupEx) {
-                        Log::warning('Failed to clean up uploaded file after DB error', [
+                        Log::warning('Falha ao limpar o arquivo enviado após erro no banco de dados', [
                             'path' => $storedPath,
                             'error' => $cleanupEx->getMessage(),
                         ]);
@@ -315,12 +315,12 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                 }
             });
         } catch (\Exception $e) {
-            Log::error('Failed to upload file', [
+            Log::error('Falha ao carregar o arquivo', [
                 'filename' => $originalName,
                 'parentId' => $parentId,
                 'error' => $e->getMessage(),
             ]);
-            return 'Failed to upload file: ' . $e->getMessage();
+            return 'Falha ao carregar o arquivo: ' . $e->getMessage();
         }
     }
 
@@ -329,7 +329,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
         $model = $this->getModelFromIdentifier($identifier);
 
         if (!$model) {
-            return 'Item not found';
+            return 'Item não encontrado';
         }
 
         try {
@@ -338,7 +338,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                 $lockedModel = $this->model()::where('id', $model->id)->lockForUpdate()->first();
 
                 if (!$lockedModel) {
-                    throw new \Exception('Item was deleted by another process');
+                    throw new \Exception('O item foi excluído por outro processo.');
                 }
 
                 // Check for duplicate with lock to prevent race conditions
@@ -349,7 +349,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                     ->exists();
 
                 if ($exists) {
-                    return 'An item with this name already exists in this folder';
+                    return 'Já existe um item com este nome nesta pasta.';
                 }
 
                 $lockedModel->name = $newName;
@@ -358,12 +358,12 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                 return true;
             });
         } catch (\Exception $e) {
-            Log::error('Failed to rename item', [
+            Log::error('Não foi possível renomear o item', [
                 'identifier' => $identifier,
                 'newName' => $newName,
                 'error' => $e->getMessage(),
             ]);
-            return 'Failed to rename: ' . $e->getMessage();
+            return 'Falha ao renomear: ' . $e->getMessage();
         }
     }
 
@@ -372,14 +372,14 @@ class DatabaseAdapter implements FileManagerAdapterInterface
         $model = $this->getModelFromIdentifier($identifier);
 
         if (!$model) {
-            return 'Item not found';
+            return 'Item não encontrado';
         }
 
         $newParentId = $this->pathToFolderId($newParentPath);
 
         // Same location check
         if ($model->parent_id === $newParentId) {
-            return 'Item is already in this folder';
+            return 'O item já está nesta pasta';
         }
 
         try {
@@ -388,7 +388,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                 $lockedModel = $this->model()::where('id', $model->id)->lockForUpdate()->first();
 
                 if (!$lockedModel) {
-                    throw new \Exception('Item was deleted by another process');
+                    throw new \Exception('O item foi excluído por outro processo');
                 }
 
                 // Get target folder with lock
@@ -396,7 +396,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                 if ($newParentId) {
                     $targetFolder = $this->model()::where('id', $newParentId)->lockForUpdate()->first();
                     if (!$targetFolder) {
-                        return 'Target folder not found';
+                        return 'Pasta de destino não encontrada';
                     }
                 }
 
@@ -406,7 +406,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                     $ancestorIds[] = $targetFolder->id;
 
                     if (in_array($lockedModel->id, $ancestorIds)) {
-                        return 'Cannot move a folder into itself or its descendants';
+                        return 'Não é possível mover uma pasta para dentro dela mesma ou para dentro de suas pastas descendentes';
                     }
                 }
 
@@ -418,7 +418,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                     ->exists();
 
                 if ($exists) {
-                    return 'An item with this name already exists in the destination folder';
+                    return 'Já existe um item com esse nome na pasta de destino';
                 }
 
                 $lockedModel->parent_id = $newParentId;
@@ -427,12 +427,12 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                 return true;
             });
         } catch (\Exception $e) {
-            Log::error('Failed to move item', [
+            Log::error('Falha ao mover o item', [
                 'identifier' => $identifier,
                 'newParentPath' => $newParentPath,
                 'error' => $e->getMessage(),
             ]);
-            return 'Failed to move: ' . $e->getMessage();
+            return 'Falha ao mover: ' . $e->getMessage();
         }
     }
 
@@ -441,7 +441,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
         $model = $this->getModelFromIdentifier($identifier);
 
         if (!$model) {
-            return 'Item not found';
+            return 'Item não encontrado';
         }
 
         try {
@@ -450,7 +450,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                 $lockedModel = $this->model()::where('id', $model->id)->lockForUpdate()->first();
 
                 if (!$lockedModel) {
-                    throw new \Exception('Item was deleted by another process');
+                    throw new \Exception('O item foi excluído por outro processo');
                 }
 
                 $storagePath = $lockedModel->storage_path;
@@ -466,7 +466,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                     } catch (\Exception $e) {
                         // Log the storage delete failure but don't fail the operation
                         // The database record is already deleted
-                        Log::warning('Failed to delete file from storage', [
+                        Log::warning('Falha ao excluir o arquivo do armazenamento', [
                             'path' => $storagePath,
                             'error' => $e->getMessage(),
                         ]);
@@ -476,11 +476,11 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                 return true;
             });
         } catch (\Exception $e) {
-            Log::error('Failed to delete item', [
+            Log::error('Não foi possível excluir o item', [
                 'identifier' => $identifier,
                 'error' => $e->getMessage(),
             ]);
-            return 'Failed to delete: ' . $e->getMessage();
+            return 'Falha ao deletar: ' . $e->getMessage();
         }
     }
 
@@ -522,7 +522,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
                 expirationMinutes: $expiration
             );
         } catch (\Exception $e) {
-            Log::warning('FileManager: Failed to generate URL for file', [
+            Log::warning('Gerenciador de Arquivos: Falha ao gerar URL para o arquivo', [
                 'disk' => $this->disk,
                 'storage_path' => $model->storage_path,
                 'identifier' => $identifier,
@@ -544,7 +544,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
             $content = Storage::disk($this->disk)->get($model->storage_path);
 
             if (strlen($content) > $maxSize) {
-                $content = substr($content, 0, $maxSize) . "\n\n... (truncated, file too large for preview)";
+                $content = substr($content, 0, $maxSize) . "\n\n... (Arquivo truncado, muito grande para visualização)";
             }
 
             return $content;

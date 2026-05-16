@@ -148,7 +148,7 @@ class AuthorizationService
 
         if (!$allowed) {
             throw new \Illuminate\Auth\Access\AuthorizationException(
-                "You are not authorized to {$ability} this resource."
+                "Você não está autorizado a {$ability} este recurso."
             );
         }
     }

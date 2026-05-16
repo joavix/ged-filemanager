@@ -243,7 +243,7 @@ class FileManagerSidebar extends Component
     {
         if (!$this->getAuthorizationService()->canCreate()) {
             Notification::make()
-                ->title('You are not authorized to create folders')
+                ->title('Você não tem autorização para criar pastas')
                 ->danger()
                 ->send();
             return;
@@ -274,7 +274,7 @@ class FileManagerSidebar extends Component
         $this->subfolderParentPath = null;
 
         Notification::make()
-            ->title('Folder created successfully')
+            ->title('Pasta criada com sucesso')
             ->success()
             ->send();
 
@@ -311,8 +311,8 @@ class FileManagerSidebar extends Component
 
         if (!$item) {
             Notification::make()
-                ->title('Folder not found')
-                ->body('This folder may have been moved or deleted.')
+                ->title('Pasta não encontrada')
+                ->body('Esta pasta pode ter sido movida ou excluída.')
                 ->warning()
                 ->send();
             $this->dispatch('close-modal', id: 'sidebar-rename-modal');
@@ -321,7 +321,7 @@ class FileManagerSidebar extends Component
 
         if (!$this->getAuthorizationService()->canUpdate(null, $item)) {
             Notification::make()
-                ->title('You are not authorized to rename this folder')
+                ->title('Você não tem autorização para renomear esta pasta')
                 ->danger()
                 ->send();
             return;
@@ -338,7 +338,7 @@ class FileManagerSidebar extends Component
             $this->renameItemName = '';
 
             Notification::make()
-                ->title('Folder renamed successfully')
+                ->title('Pasta renomeada com sucesso')
                 ->success()
                 ->send();
 
@@ -348,7 +348,7 @@ class FileManagerSidebar extends Component
             $this->dispatch('filemanager-folder-changed');
         } else {
             Notification::make()
-                ->title(is_string($result) ? $result : 'Failed to rename folder')
+                ->title(is_string($result) ? $result : 'Falha ao renomear a pasta')
                 ->danger()
                 ->send();
         }
@@ -385,8 +385,8 @@ class FileManagerSidebar extends Component
 
         if (!$item) {
             Notification::make()
-                ->title('Folder not found')
-                ->body('This folder may have been moved or deleted.')
+                ->title('Pasta não encontrada')
+                ->body('Esta pasta pode ter sido movida ou excluída.')
                 ->warning()
                 ->send();
             $this->dispatch('close-modal', id: 'sidebar-move-modal');
@@ -395,7 +395,7 @@ class FileManagerSidebar extends Component
 
         if (!$this->getAuthorizationService()->canUpdate(null, $item)) {
             Notification::make()
-                ->title('You are not authorized to move this folder')
+                ->title('Você não tem autorização para mover esta pasta')
                 ->danger()
                 ->send();
             return;
@@ -404,7 +404,7 @@ class FileManagerSidebar extends Component
         // Prevent moving folder into itself or its children
         if ($this->moveTargetPath === $this->itemToMoveId) {
             Notification::make()
-                ->title('Cannot move folder into itself')
+                ->title('Não é possível mover a pasta para dentro dela mesma')
                 ->danger()
                 ->send();
             return;
@@ -414,7 +414,7 @@ class FileManagerSidebar extends Component
 
         if ($result === true) {
             Notification::make()
-                ->title('Folder moved successfully')
+                ->title('Pasta movida com sucesso')
                 ->success()
                 ->send();
 
@@ -426,7 +426,7 @@ class FileManagerSidebar extends Component
             $this->dispatch('filemanager-folder-changed');
         } else {
             Notification::make()
-                ->title(is_string($result) ? $result : 'Failed to move folder')
+                ->title(is_string($result) ? $result : 'Falha ao mover a pasta')
                 ->danger()
                 ->send();
         }
