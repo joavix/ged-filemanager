@@ -179,45 +179,62 @@ class FileStreamController extends Controller
     protected function getStreamHeaders(string $mimeType, int $size, string $filename, string $disposition): array
     {
         $headers = [
-            'Content-Type' => $mimeType,
+            'Content-Type'   => $mimeType,
             'Content-Length' => $size,
-            'Cache-Control' => 'private, max-age=3600',
-            'Accept-Ranges' => 'bytes',
+            'Cache-Control'  => 'private, no-cache, no-store, must-revalidate',
+            'Pragma'         => 'no-cache',
+            'Expires'        => '0',
         ];
 
         // Add Content-Disposition header
         if ($disposition === 'attachment') {
-            $headers['Content-Disposition'] = "attachment; filename=\"{$filename}\"";
+            $headers['Content-Disposition'] = $this->buildContentDisposition('attachment', $filename);
         } else {
-            $headers['Content-Disposition'] = "inline; filename=\"{$filename}\"";
+            $headers['Content-Disposition'] = $this->buildContentDisposition('inline', $filename);
         }
 
         // Add security headers for inline content
         if ($disposition === 'inline') {
-            // Prevent content sniffing
-            $headers['X-Content-Type-Options'] = 'nosniff';
+            $headers['X-Frame-Options']  = 'SAMEORIGIN';
+            $headers['Content-Security-Policy'] = "frame-ancestors 'self'";
         }
 
         return $headers;
     }
 
     /**
-     * Sanitize a filename for use in Content-Disposition header.
+     * Build RFC 6266 compliant Content-Disposition header.
+     * Supports UTF-8 filenames with ASCII fallback.
+     */
+    protected function buildContentDisposition(string $disposition, string $filename): string
+    {
+        $asciiFallback = $this->sanitizeFilename($filename);
+
+        $encodedFilename = rawurlencode($filename);
+
+        return "{$disposition}; filename=\"{$asciiFallback}\"; filename*=UTF-8''{$encodedFilename}";
+    }
+
+    /**
+     * Sanitize filename for ASCII fallback in Content-Disposition header.
      */
     protected function sanitizeFilename(string $filename): string
     {
         // Remove any path components
         $filename = basename($filename);
 
-        // Remove or replace potentially dangerous characters
+        $filename = transliterator_transliterate('Any-Latin; Latin-ASCII', $filename)
+            ?? iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $filename)
+            ?? $filename;
+
         $filename = preg_replace('/[^\w\-\.\s]/', '_', $filename);
 
         // Limit length
         if (strlen($filename) > 255) {
-            $ext = pathinfo($filename, PATHINFO_EXTENSION);
-            $name = pathinfo($filename, PATHINFO_FILENAME);
+            $ext           = pathinfo($filename, PATHINFO_EXTENSION);
+            $name          = pathinfo($filename, PATHINFO_FILENAME);
             $maxNameLength = 255 - strlen($ext) - 1;
-            $filename = substr($name, 0, $maxNameLength) . '.' . $ext;
+            $filename      = substr($name, 0, $maxNameLength) . '.' . $ext;
         }
 
         return $filename;
