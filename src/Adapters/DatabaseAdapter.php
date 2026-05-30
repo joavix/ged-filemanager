@@ -214,7 +214,7 @@ class DatabaseAdapter implements FileManagerAdapterInterface
             return [
                 'id' => (string) $folder->id,
                 'name' => $folder->name,
-                'path' => $folder->getFullPath(),
+                'path' => (string) $folder->id,
                 'file_count' => $fileCounts[$folder->id] ?? 0,
                 'has_children' => isset($foldersWithChildren[$folder->id]),
                 'children' => [],
