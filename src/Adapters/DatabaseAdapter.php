@@ -189,17 +189,34 @@ class DatabaseAdapter implements FileManagerAdapterInterface
             ->orderBy('name')
             ->get();
 
-        return $folders->map(function ($folder) {
-            $hasChildren = $this->model()::where('type', 'folder')
-                ->where('parent_id', $folder->id)
-                ->exists();
+        if ($folders->isEmpty()) {
+            return [];
+        }
 
+        $folderIds = $folders->pluck('id');
+
+        // Batch: quais pastas têm subpastas (1 query ao invés de N)
+        $foldersWithChildren = $this->model()::where('type', 'folder')
+            ->whereIn('parent_id', $folderIds)
+            ->distinct()
+            ->pluck('parent_id')
+            ->flip()
+            ->toArray();
+
+        // Batch: contagem de arquivos por pasta (1 query ao invés de N)
+        $fileCounts = $this->model()::where('type', '!=', 'folder')
+            ->whereIn('parent_id', $folderIds)
+            ->selectRaw('parent_id, count(*) as count')
+            ->groupBy('parent_id')
+            ->pluck('count', 'parent_id');
+
+        return $folders->map(function ($folder) use ($foldersWithChildren, $fileCounts) {
             return [
                 'id' => (string) $folder->id,
                 'name' => $folder->name,
                 'path' => $folder->getFullPath(),
-                'file_count' => $folder->getDirectFileCount(),
-                'has_children' => $hasChildren,
+                'file_count' => $fileCounts[$folder->id] ?? 0,
+                'has_children' => isset($foldersWithChildren[$folder->id]),
                 'children' => [],
                 'children_loaded' => false,
             ];
